@@ -1,0 +1,22 @@
+<svg width="1400" height="1400" viewBox="0 0 1400 1400" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <rect width="1400" height="1400" fill="#07111F"/>
+  <g opacity="0.48">
+    <path d="M0 200H1400" stroke="#172235" stroke-width="2"/>
+    <path d="M0 400H1400" stroke="#172235" stroke-width="2"/>
+    <path d="M0 600H1400" stroke="#172235" stroke-width="2"/>
+    <path d="M0 800H1400" stroke="#172235" stroke-width="2"/>
+    <path d="M0 1000H1400" stroke="#172235" stroke-width="2"/>
+    <path d="M0 1200H1400" stroke="#172235" stroke-width="2"/>
+    <path d="M200 0V1400" stroke="#172235" stroke-width="2"/>
+    <path d="M400 0V1400" stroke="#172235" stroke-width="2"/>
+    <path d="M600 0V1400" stroke="#172235" stroke-width="2"/>
+    <path d="M800 0V1400" stroke="#172235" stroke-width="2"/>
+    <path d="M1000 0V1400" stroke="#172235" stroke-width="2"/>
+    <path d="M1200 0V1400" stroke="#172235" stroke-width="2"/>
+  </g>
+  <circle cx="340" cy="320" r="190" fill="#4BC6FF" fill-opacity="0.18"/>
+  <circle cx="1020" cy="420" r="220" fill="#F3C76F" fill-opacity="0.16"/>
+  <circle cx="730" cy="960" r="260" fill="#CBD5E1" fill-opacity="0.12"/>
+  <path d="M160 1080C324 920.667 448 840.667 532 840C658 839 686 975 814 976C916.4 976.8 1043.33 883.333 1195 696" stroke="#4BC6FF" stroke-width="20" stroke-linecap="round"/>
+  <path d="M170 1120C334 960.667 458 880.667 542 880C668 879 696 1015 824 1016C926.4 1016.8 1053.33 923.333 1205 736" stroke="#F3C76F" stroke-width="8" stroke-linecap="round"/>
+</svg>

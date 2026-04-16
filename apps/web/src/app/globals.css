@@ -1,0 +1,111 @@
+@import "tailwindcss";
+
+:root {
+  --paper: #f9f8f6;
+  --ink: #111111;
+  --muted-ink: #4d4d47;
+  --burnt: #bf4d2e;
+  --hud-bg: #060814;
+  --hud-gold: #f3c76f;
+  --hud-cyan: #4bc6ff;
+  --warm-bg: #f5f5f0;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  background: var(--paper);
+  color: var(--ink);
+  font-family:
+    var(--font-ui),
+    "PingFang SC",
+    "Microsoft YaHei",
+    sans-serif;
+}
+
+::selection {
+  background: color-mix(in srgb, var(--burnt) 22%, white);
+}
+
+.font-display {
+  font-family:
+    var(--font-display),
+    "Arial Narrow",
+    sans-serif;
+}
+
+.font-editorial {
+  font-family:
+    var(--font-serif),
+    "STSong",
+    serif;
+}
+
+.font-ui {
+  font-family:
+    var(--font-ui),
+    "PingFang SC",
+    "Microsoft YaHei",
+    sans-serif;
+}
+
+.font-data {
+  font-family:
+    var(--font-mono),
+    "SFMono-Regular",
+    monospace;
+}
+
+.ambient-grid {
+  background-image:
+    linear-gradient(rgba(255, 255, 255, 0.05) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.05) 1px, transparent 1px);
+  background-size: 48px 48px;
+}
+
+.paper-noise {
+  background-image:
+    radial-gradient(circle at 18% 12%, rgba(191, 77, 46, 0.08), transparent 28%),
+    radial-gradient(circle at 88% 10%, rgba(17, 17, 17, 0.04), transparent 24%),
+    linear-gradient(180deg, rgba(255, 255, 255, 0.78), rgba(249, 248, 246, 0.95));
+}
+
+@keyframes slow-float {
+  0%,
+  100% {
+    transform: translateY(0px);
+  }
+  50% {
+    transform: translateY(-12px);
+  }
+}
+
+@keyframes signal-pulse {
+  0%,
+  100% {
+    opacity: 0.3;
+    transform: scaleY(0.4);
+  }
+  50% {
+    opacity: 1;
+    transform: scaleY(1);
+  }
+}
+
+@keyframes waveform-rise {
+  0%,
+  100% {
+    transform: scaleY(0.35);
+    opacity: 0.3;
+  }
+  50% {
+    transform: scaleY(1);
+    opacity: 1;
+  }
+}
