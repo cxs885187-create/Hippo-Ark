@@ -59,9 +59,17 @@ def resolve_data_dir() -> Path:
     return path
 
 
+def normalize_database_url(raw_url: str) -> str:
+    if raw_url.startswith("postgres://"):
+        return raw_url.replace("postgres://", "postgresql+psycopg://", 1)
+    if raw_url.startswith("postgresql://") and "+psycopg" not in raw_url:
+        return raw_url.replace("postgresql://", "postgresql+psycopg://", 1)
+    return raw_url
+
+
 DATA_DIR = resolve_data_dir()
 DEFAULT_SQLITE_PATH = DATA_DIR / "hippoark_site.db"
-DATABASE_URL = get_env("DATABASE_URL", f"sqlite:///{DEFAULT_SQLITE_PATH.as_posix()}")
+DATABASE_URL = normalize_database_url(get_env("DATABASE_URL", f"sqlite:///{DEFAULT_SQLITE_PATH.as_posix()}"))
 APP_SECRET = get_env("APP_SECRET", "hippoark-local-secret")
 SILICONFLOW_API_KEY = get_env("SILICONFLOW_API_KEY")
 SILICONFLOW_BASE_URL = get_env("SILICONFLOW_BASE_URL", "https://api.siliconflow.cn/v1")
