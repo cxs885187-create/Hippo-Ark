@@ -15,6 +15,7 @@ import {
   UserRound,
 } from "lucide-react";
 import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 
 import { usePollingResource } from "@/hooks/use-polling-resource";
 import { apiRequest } from "@/lib/api";
@@ -72,6 +73,7 @@ function MetricTile({
 }
 
 export default function FamilyPage() {
+  const router = useRouter();
   const [isGenerating, setIsGenerating] = useState(false);
   const activeResource = usePollingResource<{ subject: Subject }>("/api/subjects/active", 3000);
   const subject = activeResource.data?.subject ?? null;
@@ -94,6 +96,19 @@ export default function FamilyPage() {
   const familyCode = asset?.payload_json.family_code;
   const maxBar = Math.max(...activity.map((item) => item.characters), 1);
 
+  async function refreshAll() {
+    await Promise.all([
+      activeResource.refresh(),
+      metricsResource.refresh(),
+      activityResource.refresh(),
+      assetResource.refresh(),
+    ]);
+  }
+
+  function scrollToSection(sectionId: string) {
+    document.getElementById(sectionId)?.scrollIntoView({ behavior: "smooth", block: "start" });
+  }
+
   async function generateAsset() {
     if (!subject) {
       return;
@@ -105,7 +120,7 @@ export default function FamilyPage() {
         method: "POST",
         body: JSON.stringify({ source_interaction_id: null }),
       });
-      await assetResource.refresh();
+      await refreshAll();
     } finally {
       setIsGenerating(false);
     }
@@ -122,19 +137,33 @@ export default function FamilyPage() {
       <main className="relative z-10 mx-auto flex min-h-screen max-w-[1600px] gap-6 px-5 py-5">
         <aside className="family-float-slow hidden w-[92px] shrink-0 self-start rounded-[2rem] border border-white/35 bg-white/28 px-4 py-5 backdrop-blur-3xl shadow-[inset_0_1px_0_rgba(255,255,255,0.65),0_24px_80px_rgba(36,64,90,0.12)] md:flex md:flex-col md:items-center md:justify-between">
           <div className="space-y-4">
-            {[Orbit, UserRound, Brain, Shield].map((Icon, index) => (
-              <div
-                key={index}
-                className="flex h-12 w-12 items-center justify-center rounded-full border border-white/45 bg-white/42 text-slate-700 transition hover:border-white/70 hover:shadow-[0_0_24px_rgba(243,199,111,0.16)]"
+            {[
+              { icon: Orbit, label: "跳转到家庭总览", action: () => scrollToSection("family-overview") },
+              { icon: UserRound, label: "跳转到当前对象", action: () => scrollToSection("family-subject") },
+              { icon: Brain, label: "跳转到指标区", action: () => scrollToSection("family-metrics") },
+              { icon: Shield, label: "跳转到家族法典", action: () => scrollToSection("family-asset") },
+            ].map((item) => (
+              <button
+                key={item.label}
+                type="button"
+                aria-label={item.label}
+                onClick={item.action}
+                className="flex h-12 w-12 items-center justify-center rounded-full border border-white/45 bg-white/42 text-slate-700 transition hover:border-white/70 hover:text-slate-900 hover:shadow-[0_0_24px_rgba(243,199,111,0.16)]"
               >
-                <Icon className="h-5 w-5" />
-              </div>
+                <item.icon className="h-5 w-5" />
+              </button>
             ))}
           </div>
 
-          <div className="flex h-12 w-12 items-center justify-center rounded-full border border-amber-300/55 bg-white/42 text-amber-700">
-            <Sparkles className="h-5 w-5" />
-          </div>
+          <button
+            type="button"
+            aria-label="同步家族法典"
+            onClick={() => void generateAsset()}
+            disabled={!subject || isGenerating}
+            className="flex h-12 w-12 items-center justify-center rounded-full border border-amber-300/55 bg-white/42 text-amber-700 transition hover:shadow-[0_0_24px_rgba(243,199,111,0.2)] disabled:opacity-50"
+          >
+            {isGenerating ? <RefreshCw className="h-5 w-5 animate-spin" /> : <Sparkles className="h-5 w-5" />}
+          </button>
         </aside>
 
         <div className="flex-1 space-y-6">
@@ -142,22 +171,51 @@ export default function FamilyPage() {
             <div className="flex flex-wrap items-center justify-between gap-3">
               <div className="flex flex-wrap items-center gap-3">
                 <div className="flex items-center gap-2 rounded-full border border-white/40 bg-white/40 px-3 py-2">
-                  {[Home, ChevronLeft, ChevronRight].map((Icon, index) => (
-                    <span key={index} className="flex h-8 w-8 items-center justify-center rounded-full bg-white/60">
-                      <Icon className="h-4 w-4 text-slate-600" />
-                    </span>
-                  ))}
+                  <button
+                    type="button"
+                    aria-label="返回首页"
+                    onClick={() => router.push("/")}
+                    className="flex h-8 w-8 items-center justify-center rounded-full bg-white/60 text-slate-600 transition hover:bg-white hover:text-slate-900"
+                  >
+                    <Home className="h-4 w-4" />
+                  </button>
+                  <button
+                    type="button"
+                    aria-label="跳转到当前对象"
+                    onClick={() => scrollToSection("family-subject")}
+                    className="flex h-8 w-8 items-center justify-center rounded-full bg-white/60 text-slate-600 transition hover:bg-white hover:text-slate-900"
+                  >
+                    <ChevronLeft className="h-4 w-4" />
+                  </button>
+                  <button
+                    type="button"
+                    aria-label="跳转到家族法典"
+                    onClick={() => scrollToSection("family-asset")}
+                    className="flex h-8 w-8 items-center justify-center rounded-full bg-white/60 text-slate-600 transition hover:bg-white hover:text-slate-900"
+                  >
+                    <ChevronRight className="h-4 w-4" />
+                  </button>
                 </div>
                 <div className="min-w-[260px] rounded-full border border-white/40 bg-white/40 px-4 py-3 text-sm text-slate-600">
-                  family.hippoark / 当前家庭观察
+                  family.hippoark / {subject ? `${subject.code} ${subject.display_name}` : "当前家庭观察"}
                 </div>
               </div>
 
               <div className="flex items-center gap-3">
-                <button className="flex h-10 w-10 items-center justify-center rounded-full border border-white/40 bg-white/42 text-slate-600">
+                <button
+                  type="button"
+                  aria-label="刷新家庭端数据"
+                  onClick={() => void refreshAll()}
+                  className="flex h-10 w-10 items-center justify-center rounded-full border border-white/40 bg-white/42 text-slate-600 transition hover:border-white/70 hover:text-slate-900"
+                >
                   <RefreshCw className="h-4 w-4" />
                 </button>
-                <button className="flex h-10 w-10 items-center justify-center rounded-full border border-white/40 bg-white/42 text-slate-600">
+                <button
+                  type="button"
+                  aria-label="跳转到页面说明"
+                  onClick={() => scrollToSection("family-note")}
+                  className="flex h-10 w-10 items-center justify-center rounded-full border border-white/40 bg-white/42 text-slate-600 transition hover:border-white/70 hover:text-slate-900"
+                >
                   <Bell className="h-4 w-4" />
                 </button>
                 <button
@@ -172,12 +230,15 @@ export default function FamilyPage() {
             </div>
           </header>
 
-          <section className="grid grid-cols-12 gap-6">
-            <aside className="family-float col-span-12 rounded-[2rem] border border-white/35 bg-white/28 p-5 backdrop-blur-3xl shadow-[inset_0_1px_0_rgba(255,255,255,0.65),0_24px_80px_rgba(36,64,90,0.12)] md:col-span-3">
+          <section id="family-overview" className="grid grid-cols-12 gap-6">
+            <aside
+              id="family-subject"
+              className="family-float col-span-12 rounded-[2rem] border border-white/35 bg-white/28 p-5 backdrop-blur-3xl shadow-[inset_0_1px_0_rgba(255,255,255,0.65),0_24px_80px_rgba(36,64,90,0.12)] md:col-span-3"
+            >
               <div className="flex items-center justify-between">
                 <div>
                   <p className="font-data text-[11px] uppercase tracking-[0.34em] text-slate-500">家庭视图</p>
-                  <h2 className="mt-3 text-xl text-slate-900">当前观察对象</h2>
+                  <h2 className="cjk-heading mt-3 text-xl font-semibold text-slate-900">当前观察对象</h2>
                 </div>
                 <UserRound className="h-5 w-5 text-amber-600" />
               </div>
@@ -204,7 +265,7 @@ export default function FamilyPage() {
                 ))}
               </div>
 
-              <div className="mt-6 border-t border-white/35 pt-6">
+              <div id="family-note" className="mt-6 border-t border-white/35 pt-6">
                 <p className="font-data text-[11px] uppercase tracking-[0.3em] text-slate-500">说明</p>
                 <p className="mt-4 text-sm leading-7 text-slate-600">
                   家庭端只读取当前激活对象的逻辑流指标与资产流快照，不涉及实验人员后台的编辑权限。
@@ -213,7 +274,7 @@ export default function FamilyPage() {
             </aside>
 
             <section className="col-span-12 space-y-6 md:col-span-9">
-              <div className="grid grid-cols-12 gap-4">
+              <div id="family-metrics" className="grid grid-cols-12 gap-4">
                 <div className="col-span-12 md:col-span-3">
                   <MetricTile label="TTR" hint="词汇丰富度" value={metrics?.ttr ?? 0} decimals={2} />
                 </div>
@@ -233,7 +294,7 @@ export default function FamilyPage() {
                   <div className="flex items-center justify-between">
                     <div>
                       <p className="font-data text-[11px] uppercase tracking-[0.34em] text-slate-500">逻辑流</p>
-                      <h2 className="mt-3 text-2xl text-slate-900">表达活跃度与记录密度</h2>
+                      <h2 className="cjk-heading mt-3 text-2xl font-semibold text-slate-900">表达活跃度与记录密度</h2>
                     </div>
                     <Activity className="h-5 w-5 text-cyan-600" />
                   </div>
@@ -268,11 +329,14 @@ export default function FamilyPage() {
                   </div>
                 </article>
 
-                <article className="family-float col-span-12 rounded-[2rem] border border-white/35 bg-white/28 p-6 backdrop-blur-3xl shadow-[inset_0_1px_0_rgba(255,255,255,0.65),0_24px_80px_rgba(36,64,90,0.12)] md:col-span-5">
+                <article
+                  id="family-asset"
+                  className="family-float col-span-12 rounded-[2rem] border border-white/35 bg-white/28 p-6 backdrop-blur-3xl shadow-[inset_0_1px_0_rgba(255,255,255,0.65),0_24px_80px_rgba(36,64,90,0.12)] md:col-span-5"
+                >
                   <div className="flex items-center justify-between">
                     <div>
                       <p className="font-data text-[11px] uppercase tracking-[0.34em] text-slate-500">资产流</p>
-                      <h2 className="mt-3 text-2xl text-slate-900">最新《家族法典》</h2>
+                      <h2 className="cjk-heading mt-3 text-2xl font-semibold text-slate-900">最新《家族法典》</h2>
                     </div>
                     <Shield className="h-5 w-5 text-amber-600" />
                   </div>

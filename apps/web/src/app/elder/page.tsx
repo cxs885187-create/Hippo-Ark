@@ -55,6 +55,23 @@ export default function ElderPage() {
   const depthStage = totalCharacters > 2400 ? 2 : totalCharacters > 900 ? 1 : 0;
   const bottleFill = Math.min(0.88, Math.max(0.14, totalCharacters / 3200));
   const bottlePercent = Math.round(bottleFill * 100);
+  const depthScale = [
+    {
+      label: "丰富层",
+      description: "沉淀出可以传下去的人生箴言与技艺逻辑。",
+      stage: 2,
+    },
+    {
+      label: "核心层",
+      description: "逐步进入经验、情绪与判断方式。",
+      stage: 1,
+    },
+    {
+      label: "基础层",
+      description: "先说清人物、地点与发生了什么。",
+      stage: 0,
+    },
+  ];
 
   useEffect(() => {
     if (latestPrompt && latestPrompt.id !== spokenPromptIdRef.current && "speechSynthesis" in window) {
@@ -220,13 +237,13 @@ export default function ElderPage() {
           <div className="col-span-12 md:col-span-7">
             <div className="flex items-center gap-3">
               <span className="h-2 w-2 rounded-full bg-black/80" />
-              <p className="font-data text-xs tracking-[0.34em] text-black/54">HIPPOARK VOICE SESSION</p>
+              <p className="font-data text-xs tracking-[0.28em] text-black/54">海马体方舟 · 口述会话</p>
             </div>
-            <h1 className="mt-5 text-5xl font-light tracking-[-0.08em] md:text-[6.4rem]">海马体方舟</h1>
+            <h1 className="cjk-display mt-5 text-[3.8rem] font-black md:text-[5.4rem]">海马体方舟</h1>
           </div>
 
           <div className="col-span-12 md:col-span-5 md:border-l md:border-neutral-300 md:pl-8">
-            <p className="font-data text-xs tracking-[0.34em] text-black/44">SYSTEM STATUS</p>
+            <p className="font-data text-xs tracking-[0.28em] text-black/44">系统状态</p>
             <p className="mt-5 text-sm leading-7 text-black/68">
               当前受试者：{activeSubject ? `${activeSubject.code} · ${activeSubject.display_name}` : "等待研究端激活"}
             </p>
@@ -237,9 +254,9 @@ export default function ElderPage() {
           </div>
         </section>
 
-        <section className="col-span-12 md:col-span-7">
-          <p className="font-data text-xs tracking-[0.34em] text-black/44">CURRENT PROMPT</p>
-          <div className="mt-8 max-w-4xl text-[2.8rem] leading-[1.52] text-black/88 md:text-[4.3rem] md:leading-[1.38]">
+        <section className="col-span-12 md:col-span-6">
+          <p className="font-data text-xs tracking-[0.28em] text-black/44">当前提问</p>
+          <div className="cjk-display mt-8 max-w-4xl text-[2.3rem] font-black text-black/88 md:text-[3.85rem]">
             {latestPrompt?.transcript ?? "您想从哪一段回忆开始都可以，我会在这里陪您慢慢听。"}
           </div>
 
@@ -260,7 +277,7 @@ export default function ElderPage() {
             ))}
           </div>
 
-          <div className="mt-14 flex flex-wrap items-center gap-x-8 gap-y-5 text-sm uppercase tracking-[0.22em] text-black/70">
+          <div className="mt-14 flex flex-wrap items-center gap-x-8 gap-y-5 text-sm text-black/72">
             <button
               onClick={requestTopicSwitch}
               className="flex items-center gap-2 border-b border-black/35 pb-1 transition hover:border-black hover:text-black"
@@ -309,8 +326,8 @@ export default function ElderPage() {
         </section>
 
         <section className="col-span-12 md:col-span-2 md:border-l md:border-neutral-300 md:px-8">
-          <p className="font-data text-xs tracking-[0.34em] text-black/44">SESSION TIMER</p>
-          <div className="mt-8 overflow-hidden font-data text-[4.9rem] font-light leading-none tracking-[-0.08em] text-black md:text-[7rem]">
+          <p className="font-data text-xs tracking-[0.28em] text-black/44">会话计时</p>
+          <div className="mt-8 overflow-hidden font-data text-[4.6rem] font-light leading-[0.98] tracking-[-0.05em] text-black md:text-[6.4rem]">
             {formatTimer(seconds)}
           </div>
           <p className="mt-5 text-sm leading-7 text-black/56">
@@ -318,12 +335,12 @@ export default function ElderPage() {
           </p>
         </section>
 
-        <aside className="col-span-12 md:col-span-3 md:border-l md:border-neutral-300 md:pl-10">
-          <p className="font-data text-xs tracking-[0.34em] text-black/44">RECORDING DEPTH</p>
+        <aside className="col-span-12 md:col-span-4 md:border-l md:border-neutral-300 md:pl-10">
+          <p className="font-data text-xs tracking-[0.28em] text-black/44">讲述深度</p>
 
-          <div className="mt-8 grid grid-cols-12 gap-6">
-            <div className="col-span-12 lg:col-span-5">
-              <div className="mx-auto flex w-[9.5rem] flex-col items-center">
+          <div className="mt-8 grid gap-8 lg:grid-cols-[minmax(10rem,11rem)_minmax(0,1fr)] lg:items-start">
+            <div>
+              <div className="mx-auto flex w-[10rem] flex-col items-center lg:mx-0">
                 <div className="relative h-[24rem] w-full">
                   <div className="absolute left-1/2 top-0 h-14 w-14 -translate-x-1/2 rounded-t-[1.6rem] border-[3px] border-black/70 border-b-0" />
                   <div className="absolute left-1/2 top-10 h-[19rem] w-full -translate-x-1/2 overflow-hidden rounded-[3rem] border-[3px] border-black/70 bg-transparent">
@@ -340,20 +357,16 @@ export default function ElderPage() {
                     </div>
                   </div>
                 </div>
-                <p className="font-data text-[11px] tracking-[0.28em] text-black/42">MEMORY RESERVOIR</p>
+                <p className="font-data text-[11px] tracking-[0.22em] text-black/42">记忆水位</p>
                 <p className="mt-2 text-sm leading-7 text-black/58">当前汇聚度约 {bottlePercent}%</p>
               </div>
             </div>
 
-            <div className="col-span-12 space-y-9 lg:col-span-7">
-              {[
-                ["BASE", "先说清人物、地点与发生了什么。"],
-                ["CORE", "逐步进入经验、情绪与判断方式。"],
-                ["RICH", "沉淀出可以传下去的人生箴言与技艺逻辑。"],
-              ].map(([label, description], index) => {
-                const active = index === depthStage;
+            <div className="space-y-8 lg:pt-10">
+              {depthScale.map((item) => {
+                const active = item.stage === depthStage;
                 return (
-                  <div key={label} className="flex gap-5">
+                  <div key={item.label} className="flex gap-5">
                     <div
                       className="mt-2 h-2.5 w-2.5 rounded-full"
                       style={{ background: active ? "#101010" : "#c8c4bd" }}
@@ -364,10 +377,10 @@ export default function ElderPage() {
                           active ? "text-black" : "text-black/34"
                         }`}
                       >
-                        {label}
+                        {item.label}
                       </p>
                       <p className={`mt-3 text-sm leading-7 ${active ? "text-black/72" : "text-black/40"}`}>
-                        {description}
+                        {item.description}
                       </p>
                     </div>
                   </div>
@@ -377,7 +390,7 @@ export default function ElderPage() {
           </div>
 
           <div className="mt-14 border-t border-neutral-300 pt-6">
-            <p className="font-data text-xs tracking-[0.34em] text-black/44">SESSION ARCHIVE</p>
+            <p className="font-data text-xs tracking-[0.28em] text-black/44">近期片段</p>
             <div className="mt-6 space-y-4">
               {elderItems.slice(0, 4).map((item) => (
                 <article key={item.id} className="border-t border-neutral-300 pt-4">

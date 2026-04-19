@@ -28,12 +28,42 @@ import { apiRequest } from "@/lib/api";
 import type { ActivityPoint, AssetSnapshot, Interaction, Metrics, Subject } from "@/lib/types";
 
 const qaLibrary = [
-  "以前没有天气预报，您出海前是怎么判断天气的？",
-  "村里以前谁的手艺最好，您从他身上学到了什么？",
-  "小时候家里有没有特别严格的家规或者做事规矩？",
-  "您年轻时最自豪的一件事是什么？",
-  "如果给现在的晚辈留一句话，您最想告诉他们什么？",
-  "遇到最困难的年月，家里是怎么熬过来的？",
+  {
+    id: "weather",
+    title: "气象经验",
+    prompt: "以前没有天气预报，您出海前是怎么判断天气的？",
+    intent: "帮助系统提取经验判断、自然观察方法与长期积累下来的生存技巧。",
+  },
+  {
+    id: "craft",
+    title: "手艺传承",
+    prompt: "村里以前谁的手艺最好，您从他身上学到了什么？",
+    intent: "引出师徒关系、社区互助与技艺如何在生活中被传下来。",
+  },
+  {
+    id: "family-rules",
+    title: "家风家规",
+    prompt: "小时候家里有没有特别严格的家规或者做事规矩？",
+    intent: "更容易提取家族秩序、价值观边界与日常行为准则。",
+  },
+  {
+    id: "pride",
+    title: "高光时刻",
+    prompt: "您年轻时最自豪的一件事是什么？",
+    intent: "用正向回忆带出自我效能、责任感与可讲述的代表性经历。",
+  },
+  {
+    id: "motto",
+    title: "留给晚辈",
+    prompt: "如果给现在的晚辈留一句话，您最想告诉他们什么？",
+    intent: "直接触达智慧层，帮助系统生成更像长辈口吻的传承箴言。",
+  },
+  {
+    id: "hardship",
+    title: "逆境应对",
+    prompt: "遇到最困难的年月，家里是怎么熬过来的？",
+    intent: "适合萃取家庭责任、行动策略与在困境中形成的经验逻辑。",
+  },
 ];
 
 const interventionPrompts = [
@@ -140,7 +170,7 @@ export default function ResearchDashboardPage() {
     name: "",
   });
   const [customPrompt, setCustomPrompt] = useState("");
-  const [selectedPrompt, setSelectedPrompt] = useState(qaLibrary[0]);
+  const [selectedPromptId, setSelectedPromptId] = useState(qaLibrary[0].id);
   const [message, setMessage] = useState<string | null>(null);
   const [drafts, setDrafts] = useState<Record<number, string>>({});
 
@@ -149,6 +179,7 @@ export default function ResearchDashboardPage() {
   const activity = activityResource.data?.items ?? [];
   const asset = assetResource.data?.asset ?? null;
   const maxBar = Math.max(...activity.map((item) => item.characters), 1);
+  const selectedPrompt = qaLibrary.find((item) => item.id === selectedPromptId) ?? qaLibrary[0];
   const editCode = activeSubject && editState.subjectId === activeSubject.id ? editState.code : activeSubject?.code ?? "";
   const editName =
     activeSubject && editState.subjectId === activeSubject.id ? editState.name : activeSubject?.display_name ?? "";
@@ -167,6 +198,32 @@ export default function ResearchDashboardPage() {
       activityResource.refresh(),
       assetResource.refresh(),
     ]);
+  }
+
+  function scrollToSection(sectionId: string) {
+    document.getElementById(sectionId)?.scrollIntoView({ behavior: "smooth", block: "start" });
+  }
+
+  async function handleRefresh() {
+    await refreshAll();
+    setMessage("控制台数据已刷新。");
+  }
+
+  async function cycleSubject(offset: number) {
+    if (!subjects.length || !activeSubject) {
+      return;
+    }
+
+    const currentIndex = subjects.findIndex((subject) => subject.id === activeSubject.id);
+    if (currentIndex < 0) {
+      return;
+    }
+
+    const nextIndex = (currentIndex + offset + subjects.length) % subjects.length;
+    const nextSubject = subjects[nextIndex];
+    if (nextSubject && nextSubject.id !== activeSubject.id) {
+      await activateSubject(nextSubject.id);
+    }
   }
 
   async function handleLogout() {
@@ -280,13 +337,21 @@ export default function ResearchDashboardPage() {
       <main className="relative z-10 mx-auto flex min-h-screen max-w-[1600px] gap-6 px-5 py-5">
         <aside className="dashboard-float-slow hidden w-[92px] shrink-0 self-start rounded-[2rem] border border-white/10 bg-slate-800/28 px-4 py-5 backdrop-blur-3xl shadow-[inset_0_1px_0_rgba(255,255,255,0.08),0_24px_80px_rgba(0,0,0,0.32)] md:flex md:flex-col md:items-center md:justify-between">
           <div className="space-y-4">
-            {[Orbit, Brain, UserRound, Sparkles].map((Icon, index) => (
-              <div
-                key={index}
-                className="flex h-12 w-12 items-center justify-center rounded-full border border-white/10 bg-white/4 text-slate-300 transition hover:border-white/20 hover:shadow-[0_0_22px_rgba(243,199,111,0.12)]"
+            {[
+              { icon: Orbit, label: "跳转到受试者区", action: () => scrollToSection("dashboard-subjects") },
+              { icon: Brain, label: "跳转到指标区", action: () => scrollToSection("dashboard-metrics") },
+              { icon: UserRound, label: "跳转到实时流", action: () => scrollToSection("dashboard-feed") },
+              { icon: Sparkles, label: "跳转到话术区", action: () => scrollToSection("dashboard-prompts") },
+            ].map((item) => (
+              <button
+                key={item.label}
+                type="button"
+                aria-label={item.label}
+                onClick={item.action}
+                className="flex h-12 w-12 items-center justify-center rounded-full border border-white/10 bg-white/4 text-slate-300 transition hover:border-white/20 hover:text-white hover:shadow-[0_0_22px_rgba(243,199,111,0.12)]"
               >
-                <Icon className="h-5 w-5" />
-              </div>
+                <item.icon className="h-5 w-5" />
+              </button>
             ))}
           </div>
 
@@ -303,23 +368,52 @@ export default function ResearchDashboardPage() {
             <div className="flex flex-wrap items-center justify-between gap-3">
               <div className="flex flex-wrap items-center gap-3">
                 <div className="flex items-center gap-2 rounded-full border border-white/10 bg-white/4 px-3 py-2">
-                  {[Home, ChevronLeft, ChevronRight].map((Icon, index) => (
-                    <span key={index} className="flex h-8 w-8 items-center justify-center rounded-full bg-white/4">
-                      <Icon className="h-4 w-4 text-slate-300" />
-                    </span>
-                  ))}
+                  <button
+                    type="button"
+                    aria-label="返回首页"
+                    onClick={() => router.push("/")}
+                    className="flex h-8 w-8 items-center justify-center rounded-full bg-white/4 text-slate-300 transition hover:bg-white/10 hover:text-white"
+                  >
+                    <Home className="h-4 w-4" />
+                  </button>
+                  <button
+                    type="button"
+                    aria-label="切换到上一位受试者"
+                    onClick={() => void cycleSubject(-1)}
+                    className="flex h-8 w-8 items-center justify-center rounded-full bg-white/4 text-slate-300 transition hover:bg-white/10 hover:text-white"
+                  >
+                    <ChevronLeft className="h-4 w-4" />
+                  </button>
+                  <button
+                    type="button"
+                    aria-label="切换到下一位受试者"
+                    onClick={() => void cycleSubject(1)}
+                    className="flex h-8 w-8 items-center justify-center rounded-full bg-white/4 text-slate-300 transition hover:bg-white/10 hover:text-white"
+                  >
+                    <ChevronRight className="h-4 w-4" />
+                  </button>
                 </div>
                 <div className="flex min-w-[260px] items-center gap-3 rounded-full border border-white/10 bg-black/20 px-4 py-3 text-sm text-slate-300">
                   <Search className="h-4 w-4 text-slate-500" />
-                  research.hippoark / 控制台 / 一源双流
+                  research.hippoark / 控制台 / {activeSubject ? `${activeSubject.code} ${activeSubject.display_name}` : "等待激活"}
                 </div>
               </div>
 
               <div className="flex items-center gap-3">
-                <button className="flex h-10 w-10 items-center justify-center rounded-full border border-white/10 bg-white/4 text-slate-300">
+                <button
+                  type="button"
+                  aria-label="刷新控制台数据"
+                  onClick={() => void handleRefresh()}
+                  className="flex h-10 w-10 items-center justify-center rounded-full border border-white/10 bg-white/4 text-slate-300 transition hover:border-white/20 hover:text-white"
+                >
                   <RefreshCw className="h-4 w-4" />
                 </button>
-                <button className="flex h-10 w-10 items-center justify-center rounded-full border border-white/10 bg-white/4 text-slate-300">
+                <button
+                  type="button"
+                  aria-label="跳转到系统反馈"
+                  onClick={() => scrollToSection(message ? "dashboard-message" : "dashboard-feed")}
+                  className="flex h-10 w-10 items-center justify-center rounded-full border border-white/10 bg-white/4 text-slate-300 transition hover:border-white/20 hover:text-white"
+                >
                   <Bell className="h-4 w-4" />
                 </button>
                 <div className="rounded-full border border-white/10 bg-white/4 px-4 py-2 text-sm text-slate-200">
@@ -330,11 +424,14 @@ export default function ResearchDashboardPage() {
           </header>
 
           <section className="grid grid-cols-12 gap-6">
-            <section className="dashboard-float col-span-12 rounded-[2rem] border border-white/10 bg-slate-800/26 p-5 backdrop-blur-3xl shadow-[inset_0_1px_0_rgba(255,255,255,0.08),0_28px_90px_rgba(0,0,0,0.28)] md:col-span-3">
+            <section
+              id="dashboard-subjects"
+              className="dashboard-float col-span-12 rounded-[2rem] border border-white/10 bg-slate-800/26 p-5 backdrop-blur-3xl shadow-[inset_0_1px_0_rgba(255,255,255,0.08),0_28px_90px_rgba(0,0,0,0.28)] md:col-span-3"
+            >
               <div className="flex items-center justify-between">
                 <div>
                   <p className="font-data text-[11px] uppercase tracking-[0.34em] text-slate-400">受试者中控</p>
-                  <h2 className="mt-3 text-xl text-slate-100">切换与管理现场对象</h2>
+                  <h2 className="cjk-heading mt-3 text-xl font-semibold text-slate-100">切换与管理现场对象</h2>
                 </div>
                 <UserRound className="h-5 w-5 text-amber-300" />
               </div>
@@ -423,7 +520,7 @@ export default function ResearchDashboardPage() {
             </section>
 
             <section className="col-span-12 space-y-6 md:col-span-6">
-              <div className="grid grid-cols-12 gap-4">
+              <div id="dashboard-metrics" className="grid grid-cols-12 gap-4">
                 <div className="col-span-12 md:col-span-6">
                   <MetricTile label="TTR" hint="词汇丰富度" value={metrics?.ttr ?? 0} decimals={2} />
                 </div>
@@ -440,9 +537,9 @@ export default function ResearchDashboardPage() {
 
               <article className="dashboard-float rounded-[2rem] border border-white/10 bg-slate-800/26 p-6 backdrop-blur-3xl shadow-[inset_0_1px_0_rgba(255,255,255,0.08),0_28px_90px_rgba(0,0,0,0.28)]">
                 <div className="flex items-center justify-between">
-                  <div>
-                    <p className="font-data text-[11px] uppercase tracking-[0.34em] text-slate-400">逻辑流图层</p>
-                    <h2 className="mt-3 text-2xl text-slate-100">实时表达活跃度</h2>
+                    <div>
+                      <p className="font-data text-[11px] uppercase tracking-[0.34em] text-slate-400">逻辑流图层</p>
+                    <h2 className="cjk-heading mt-3 text-2xl font-semibold text-slate-100">实时表达活跃度</h2>
                   </div>
                   <Activity className="h-5 w-5 text-cyan-300" />
                 </div>
@@ -477,11 +574,14 @@ export default function ResearchDashboardPage() {
                 </div>
               </article>
 
-              <article className="dashboard-float rounded-[2rem] border border-white/10 bg-slate-800/26 p-6 backdrop-blur-3xl shadow-[inset_0_1px_0_rgba(255,255,255,0.08),0_28px_90px_rgba(0,0,0,0.28)]">
+              <article
+                id="dashboard-feed"
+                className="dashboard-float rounded-[2rem] border border-white/10 bg-slate-800/26 p-6 backdrop-blur-3xl shadow-[inset_0_1px_0_rgba(255,255,255,0.08),0_28px_90px_rgba(0,0,0,0.28)]"
+              >
                 <div className="flex items-center justify-between">
                   <div>
                     <p className="font-data text-[11px] uppercase tracking-[0.34em] text-slate-400">实时流</p>
-                    <h2 className="mt-3 text-2xl text-slate-100">转录、覆写与资产触发</h2>
+                    <h2 className="cjk-heading mt-3 text-2xl font-semibold text-slate-100">转录、覆写与资产触发</h2>
                   </div>
                   <AudioLines className="h-5 w-5 text-amber-300" />
                 </div>
@@ -553,7 +653,9 @@ export default function ResearchDashboardPage() {
               </article>
             </section>
 
-            <section className="dashboard-float col-span-12 space-y-6 rounded-[2rem] border border-white/10 bg-slate-800/26 p-5 backdrop-blur-3xl shadow-[inset_0_1px_0_rgba(255,255,255,0.08),0_28px_90px_rgba(0,0,0,0.28)] md:col-span-3">
+            <section
+              className="dashboard-float col-span-12 space-y-6 rounded-[2rem] border border-white/10 bg-slate-800/26 p-5 backdrop-blur-3xl shadow-[inset_0_1px_0_rgba(255,255,255,0.08),0_28px_90px_rgba(0,0,0,0.28)] md:col-span-3"
+            >
               <article>
                 <p className="font-data text-[11px] uppercase tracking-[0.34em] text-slate-400">人工干预库</p>
                 <div className="mt-5 space-y-3">
@@ -570,52 +672,81 @@ export default function ResearchDashboardPage() {
                 </div>
               </article>
 
-              <article className="border-t border-white/10 pt-6">
-                <p className="font-data text-[11px] uppercase tracking-[0.34em] text-slate-400">预设与自定义话术</p>
-                <select
-                  value={selectedPrompt}
-                  onChange={(event) => setSelectedPrompt(event.target.value)}
-                  className="mt-4 w-full rounded-[1rem] border border-white/10 bg-black/16 px-4 py-3 text-sm text-slate-200 outline-none"
-                >
-                  {qaLibrary.map((item) => (
-                    <option key={item} value={item}>
-                      {item}
-                    </option>
-                  ))}
-                </select>
-                <button
-                  onClick={() => sendPrompt(selectedPrompt)}
-                  className="mt-4 flex w-full items-center justify-center gap-2 rounded-full border border-cyan-300/25 bg-cyan-400/12 px-4 py-3 text-sm transition hover:border-cyan-300/50 hover:shadow-[0_0_28px_rgba(75,198,255,0.22)]"
-                >
-                  <Send className="h-4 w-4" />
-                  下发预设追问
-                </button>
+              <article id="dashboard-prompts" className="border-t border-white/10 pt-6">
+                <div className="rounded-[1.7rem] border border-amber-200/20 bg-[linear-gradient(180deg,rgba(253,249,240,0.98),rgba(243,236,220,0.96))] p-4 text-slate-900 shadow-[0_18px_40px_rgba(0,0,0,0.16)]">
+                  <div className="flex items-center justify-between gap-4">
+                    <div>
+                      <p className="font-data text-[11px] tracking-[0.28em] text-slate-500">预设提问库</p>
+                      <h2 className="cjk-heading mt-3 text-xl font-semibold text-slate-950">按现场语境挑一句就能下发</h2>
+                    </div>
+                    <Sparkles className="h-5 w-5 text-amber-700" />
+                  </div>
 
-                <textarea
-                  value={customPrompt}
-                  onChange={(event) => setCustomPrompt(event.target.value)}
-                  placeholder="输入自定义追问、安抚或结束语"
-                  className="mt-5 min-h-32 w-full rounded-[1rem] border border-white/10 bg-black/16 px-4 py-3 text-sm leading-7 text-slate-200 outline-none transition focus:border-amber-300/45"
-                />
-                <button
-                  onClick={() => {
-                    if (customPrompt.trim()) {
-                      void sendPrompt(customPrompt.trim());
-                      setCustomPrompt("");
-                    }
-                  }}
-                  className="mt-4 flex w-full items-center justify-center gap-2 rounded-full border border-amber-300/25 bg-amber-300/10 px-4 py-3 text-sm transition hover:border-amber-300/50 hover:shadow-[0_0_28px_rgba(243,199,111,0.2)]"
-                >
-                  <Send className="h-4 w-4" />
-                  发送自定义话术
-                </button>
+                  <div className="mt-5 space-y-3">
+                    {qaLibrary.map((item) => {
+                      const active = item.id === selectedPrompt.id;
+                      return (
+                        <button
+                          key={item.id}
+                          type="button"
+                          onClick={() => setSelectedPromptId(item.id)}
+                          className={`w-full rounded-[1.25rem] border px-4 py-4 text-left transition ${
+                            active
+                              ? "border-slate-900/12 bg-white text-slate-950 shadow-[0_14px_30px_rgba(15,23,42,0.08)]"
+                              : "border-white/70 bg-white/72 text-slate-900 hover:border-slate-900/12 hover:bg-white"
+                          }`}
+                        >
+                          <p className="font-data text-[10px] tracking-[0.22em] text-slate-500">{item.title}</p>
+                          <p className="mt-2 text-sm leading-7 text-slate-950">{item.prompt}</p>
+                          <p className="mt-3 text-xs leading-6 text-slate-600">{item.intent}</p>
+                        </button>
+                      );
+                    })}
+                  </div>
+
+                  <div className="mt-5 rounded-[1.3rem] border border-slate-900/8 bg-white/90 p-4">
+                    <p className="font-data text-[10px] tracking-[0.22em] text-slate-500">即将下发</p>
+                    <p className="mt-2 text-sm leading-7 text-slate-950">{selectedPrompt.prompt}</p>
+                    <p className="mt-2 text-xs leading-6 text-slate-600">{selectedPrompt.intent}</p>
+                  </div>
+
+                  <button
+                    onClick={() => sendPrompt(selectedPrompt.prompt)}
+                    className="mt-5 flex w-full items-center justify-center gap-2 rounded-full border border-slate-900/12 bg-slate-950 px-4 py-3 text-sm text-white transition hover:bg-slate-900 hover:shadow-[0_0_28px_rgba(15,23,42,0.26)]"
+                  >
+                    <Send className="h-4 w-4" />
+                    下发预设提问
+                  </button>
+                </div>
+
+                <div className="mt-5 rounded-[1.6rem] border border-white/10 bg-black/14 p-4">
+                  <p className="font-data text-[11px] uppercase tracking-[0.28em] text-slate-400">自定义话术</p>
+                  <textarea
+                    value={customPrompt}
+                    onChange={(event) => setCustomPrompt(event.target.value)}
+                    placeholder="输入自定义追问、安抚或结束语"
+                    className="mt-4 min-h-32 w-full rounded-[1rem] border border-white/10 bg-white/4 px-4 py-3 text-sm leading-7 text-slate-100 outline-none transition focus:border-amber-300/45"
+                  />
+                  <button
+                    onClick={() => {
+                      if (customPrompt.trim()) {
+                        void sendPrompt(customPrompt.trim());
+                        setCustomPrompt("");
+                      }
+                    }}
+                    className="mt-4 flex w-full items-center justify-center gap-2 rounded-full border border-amber-300/25 bg-amber-300/10 px-4 py-3 text-sm transition hover:border-amber-300/50 hover:shadow-[0_0_28px_rgba(243,199,111,0.2)]"
+                  >
+                    <Send className="h-4 w-4" />
+                    发送自定义话术
+                  </button>
+                </div>
               </article>
 
-              <article className="border-t border-white/10 pt-6">
+              <article id="dashboard-asset" className="border-t border-white/10 pt-6">
                 <div className="flex items-center justify-between">
                   <div>
                     <p className="font-data text-[11px] uppercase tracking-[0.34em] text-slate-400">资产流快照</p>
-                    <h2 className="mt-3 text-xl text-slate-100">最新《家族法典》</h2>
+                    <h2 className="cjk-heading mt-3 text-xl font-semibold text-slate-100">最新《家族法典》</h2>
                   </div>
                   <Shield className="h-5 w-5 text-amber-300" />
                 </div>
@@ -653,7 +784,10 @@ export default function ResearchDashboardPage() {
               </article>
 
               {message && (
-                <article className="rounded-[1.4rem] border border-cyan-300/18 bg-cyan-400/8 p-4 text-sm text-slate-200">
+                <article
+                  id="dashboard-message"
+                  className="rounded-[1.4rem] border border-cyan-300/18 bg-cyan-400/8 p-4 text-sm text-slate-200"
+                >
                   {message}
                 </article>
               )}

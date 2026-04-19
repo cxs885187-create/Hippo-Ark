@@ -8,6 +8,8 @@ import jieba
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
+from core.prompt_engineering import ASSET_SYSTEM_PROMPT, TRANSCRIPTION_SYSTEM_PROMPT, build_asset_user_prompt
+
 try:
     from .models import Interaction, Subject
     from .security import create_siliconflow_client, desensitize_pii, humanize_siliconflow_error
@@ -17,27 +19,7 @@ except ImportError:
 
 
 TRANSCRIPTION_MODEL = "FunAudioLLM/SenseVoiceSmall"
-TRANSCRIPTION_PROMPT = (
-    "这里是海马体方舟系统。请尽量准确识别海南方言、疍家话、黎锦、渔民经验等相关表达，"
-    "只输出干净的中文转录文本，不要附加标签、表情或额外解释。"
-)
 ASSET_MODEL = "deepseek-ai/DeepSeek-V3"
-
-COT_PROMPT = """
-# Role
-你是一位数字人文研究者、口述史专家与人类学分析者。你的任务是从长者碎片化、方言化的自然口述文本中，萃取出具有代际传承价值的隐性知识，并将其结构化为《家族法典》。
-
-# Workflow
-请严格按照以下三层路径进行推理：
-1. 事实层：客观还原发生了什么，包括人物、地点、时间、事件经过与技能步骤。
-2. 归因层：分析当时的情绪、历史背景、生存处境与行动动机。
-3. 智慧层：提炼可传给后辈的生活经验、精神价值或家族箴言。
-
-# Constraints
-1. 如果信息不足，请明确写“信息不足，需进一步追问”，不要编造。
-2. wisdom_layer.family_motto 必须使用长者对晚辈说话的口吻。
-3. 只输出 JSON 对象，不要输出 Markdown 代码块或解释文字。
-"""
 
 UTTERANCE_SPLIT_PATTERN = re.compile(r"[。！？!?；;\n]+")
 
@@ -56,7 +38,7 @@ def transcribe_audio(audio_bytes: bytes, filename: str, mime_type: str | None = 
         result = create_siliconflow_client().audio.transcriptions.create(
             model=TRANSCRIPTION_MODEL,
             file=(filename, audio_bytes, mime_type or "application/octet-stream"),
-            prompt=TRANSCRIPTION_PROMPT,
+            prompt=TRANSCRIPTION_SYSTEM_PROMPT,
         )
         raw_text = getattr(result, "text", str(result)).strip()
         clean_text = clean_transcription_text(raw_text)
@@ -175,13 +157,10 @@ def build_family_asset(db: Session, subject_id: int, source_interaction_id: int 
     try:
         response = create_siliconflow_client().chat.completions.create(
             model=ASSET_MODEL,
-            temperature=0.3,
+            temperature=0.2,
             messages=[
-                {"role": "system", "content": COT_PROMPT},
-                {
-                    "role": "user",
-                    "content": f"请对以下长者口述内容进行三层结构化萃取：\n\n{combined_text}",
-                },
+                {"role": "system", "content": ASSET_SYSTEM_PROMPT},
+                {"role": "user", "content": build_asset_user_prompt(combined_text)},
             ],
         )
         raw_output = response.choices[0].message.content.strip()

@@ -29,23 +29,22 @@ export default function Home() {
             </div>
 
             <div className="relative">
-              <div className="max-w-xs md:absolute md:right-0 md:top-3">
+              <div className="max-w-xs border-l border-black/10 pl-4 md:absolute md:right-0 md:top-4 md:w-[17rem]">
                 <p className="font-data text-[11px] tracking-[0.24em] text-black/42">PROJECT</p>
                 <p className="mt-3 text-sm leading-7 text-black/58">{projectFullName}</p>
               </div>
 
-              <div className="relative z-10 space-y-2">
-                <h1 className="max-w-5xl text-[4.7rem] font-black leading-[0.94] tracking-[-0.07em] md:text-[8.4rem]">
+              <div className="relative z-10 flex max-w-[58rem] flex-col gap-3 md:pr-[18rem]">
+                <h1 className="cjk-display text-[3.8rem] font-black md:text-[6.9rem]">
                   {homeHero.titleLines[0]}
                 </h1>
-                <h1 className="max-w-5xl pl-0 text-[4.7rem] font-black leading-[0.94] tracking-[-0.07em] md:pl-16 md:text-[8.4rem]">
+                <h1 className="cjk-display pl-0 text-[3.8rem] font-black md:pl-14 md:text-[6.9rem]">
                   {homeHero.titleLines[1]}
                 </h1>
+                <h1 className="cjk-display pl-0 text-[3.3rem] font-black md:pl-28 md:text-[5.8rem]">
+                  {homeHero.titleLines[2]}
+                </h1>
               </div>
-
-              <h1 className="relative z-20 mt-3 text-[4.1rem] font-black leading-[0.98] tracking-[-0.06em] md:absolute md:left-[28%] md:top-[76%] md:mt-0 md:bg-[var(--paper)] md:px-4 md:text-[6.4rem]">
-                {homeHero.titleLines[2]}
-              </h1>
             </div>
 
             <div className="grid grid-cols-12 gap-6 pt-8 md:pt-14">
@@ -93,7 +92,7 @@ export default function Home() {
         <section className="grid grid-cols-12 gap-6 md:gap-8">
           <div className="col-span-12 md:col-span-4">
             <p className="font-data text-xs tracking-[0.32em] text-[var(--burnt)]">项目主轴</p>
-            <h2 className="mt-5 text-5xl font-black leading-[0.92] tracking-[-0.06em] md:text-[5rem]">
+            <h2 className="cjk-display mt-5 text-5xl font-black md:text-[5rem]">
               一次叙事
               <br />
               双重交付
@@ -106,7 +105,7 @@ export default function Home() {
                 className={`${index === 1 ? "md:col-span-7 md:-mt-6" : "md:col-span-5"} col-span-12 border-t border-black/10 pt-7`}
               >
                 <p className="font-data text-xs tracking-[0.28em] text-[var(--burnt)]">{item.eyebrow}</p>
-                <h3 className="mt-5 text-[2rem] font-black leading-[1.18] tracking-[-0.04em] md:text-[2.4rem]">
+                <h3 className="cjk-heading mt-5 text-[2rem] font-black md:text-[2.4rem]">
                   {item.title}
                 </h3>
                 <p className="mt-5 text-base leading-8 text-black/66">{item.body}</p>
@@ -118,7 +117,7 @@ export default function Home() {
         <section className="grid grid-cols-12 gap-6 md:gap-8">
           <div className="col-span-12 md:col-span-4">
             <p className="font-data text-xs tracking-[0.32em] text-[var(--burnt)]">入口设计</p>
-            <h2 className="mt-5 text-5xl font-black leading-[0.92] tracking-[-0.06em] md:text-[5rem]">
+            <h2 className="cjk-display mt-5 text-5xl font-black md:text-[5rem]">
               三个主体
               <br />
               一条链路
@@ -132,7 +131,7 @@ export default function Home() {
                 className={`${index === 1 ? "md:col-span-5 md:-mt-10" : "md:col-span-3"} group col-span-12 border border-black/10 bg-white/40 p-7 transition hover:-translate-y-1 hover:border-black/20`}
               >
                 <p className="font-data text-xs tracking-[0.28em] text-[var(--burnt)]">{item.eyebrow}</p>
-                <h3 className="mt-12 text-[2.2rem] font-black leading-[1.02] tracking-[-0.05em]">{item.title}</h3>
+                <h3 className="cjk-heading mt-12 text-[2.2rem] font-black">{item.title}</h3>
                 <p className="mt-5 text-sm leading-8 text-black/62">{item.description}</p>
                 <div className="mt-8 flex items-center gap-2 text-sm tracking-[0.18em] text-black/70">
                   进入
@@ -146,7 +145,7 @@ export default function Home() {
         <section className="grid grid-cols-12 gap-6 md:gap-8">
           <div className="col-span-12 md:col-span-3">
             <p className="font-data text-xs tracking-[0.32em] text-[var(--burnt)]">现场与资料</p>
-            <h2 className="mt-5 text-5xl font-black leading-[0.92] tracking-[-0.06em] md:text-[4.8rem]">
+            <h2 className="cjk-display mt-5 text-5xl font-black md:text-[4.8rem]">
               田野、
               <br />
               记忆、
@@ -183,7 +182,7 @@ export default function Home() {
         <section className="grid grid-cols-12 gap-6 border-t border-black/10 pt-12 md:gap-8">
           <div className="col-span-12 md:col-span-4">
             <p className="font-data text-xs tracking-[0.32em] text-[var(--burnt)]">科研时间线</p>
-            <h2 className="mt-5 text-5xl font-black leading-[0.92] tracking-[-0.06em] md:text-[5rem]">
+            <h2 className="cjk-display mt-5 text-5xl font-black md:text-[5rem]">
               从原型到结项
             </h2>
           </div>
@@ -204,7 +203,7 @@ export default function Home() {
         <section className="grid grid-cols-12 gap-6 border-t border-black/10 py-12 md:gap-8">
           <div className="col-span-12 md:col-span-4">
             <p className="font-data text-xs tracking-[0.32em] text-[var(--burnt)]">信息流</p>
-            <h2 className="mt-5 text-5xl font-black leading-[0.92] tracking-[-0.06em] md:text-[4.8rem]">
+            <h2 className="cjk-display mt-5 text-5xl font-black md:text-[4.8rem]">
               这个网站
               <br />
               具体追踪什么
@@ -219,7 +218,7 @@ export default function Home() {
                   className="group flex items-start justify-between gap-6 py-6"
                 >
                   <div>
-                    <p className="text-[1.7rem] font-semibold leading-[1.5] tracking-[-0.03em]">{item.title}</p>
+                    <p className="cjk-heading text-[1.7rem] font-semibold">{item.title}</p>
                     <p className="mt-3 max-w-3xl text-sm leading-8 text-black/60">{item.summary}</p>
                   </div>
                   <ArrowRight className="mt-1 h-5 w-5 shrink-0 transition group-hover:translate-x-1" />

@@ -43,7 +43,7 @@ export default function ResearchLoginPage() {
         <div className="grid w-full grid-cols-12 gap-6">
           <section className="rounded-[2rem] border border-white/10 bg-slate-800/28 p-6 backdrop-blur-3xl shadow-[inset_0_1px_0_rgba(255,255,255,0.08),0_30px_80px_rgba(0,0,0,0.36)] col-span-12 md:col-span-5">
             <p className="font-data text-[11px] uppercase tracking-[0.34em] text-slate-400">实验人员入口</p>
-            <h1 className="mt-4 text-6xl font-black leading-[0.88] tracking-[-0.08em] text-slate-100">
+            <h1 className="cjk-display mt-4 max-w-[16rem] text-[3.8rem] font-black text-slate-100 md:text-[4.8rem]">
               控制台
               <br />
               鉴权登录
