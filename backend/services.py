@@ -8,13 +8,13 @@ import jieba
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
-from core.prompt_engineering import ASSET_SYSTEM_PROMPT, TRANSCRIPTION_SYSTEM_PROMPT, build_asset_user_prompt
-
 try:
     from .models import Interaction, Subject
+    from .prompt_engineering import ASSET_SYSTEM_PROMPT, TRANSCRIPTION_SYSTEM_PROMPT, build_asset_user_prompt
     from .security import create_siliconflow_client, desensitize_pii, humanize_siliconflow_error
 except ImportError:
     from models import Interaction, Subject
+    from prompt_engineering import ASSET_SYSTEM_PROMPT, TRANSCRIPTION_SYSTEM_PROMPT, build_asset_user_prompt
     from security import create_siliconflow_client, desensitize_pii, humanize_siliconflow_error
 
 

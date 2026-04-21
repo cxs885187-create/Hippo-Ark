@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from contextlib import asynccontextmanager
+from functools import lru_cache
 from io import BytesIO
 
 from fastapi import Cookie, Depends, FastAPI, File, Form, HTTPException, Response, UploadFile, status
@@ -154,9 +155,14 @@ def ensure_initialized() -> None:
         db.close()
 
 
+@lru_cache(maxsize=1)
+def ensure_initialized_once() -> None:
+    ensure_initialized()
+
+
 @asynccontextmanager
 async def lifespan(_: FastAPI):
-    ensure_initialized()
+    ensure_initialized_once()
     yield
 
 
@@ -174,6 +180,7 @@ def create_app() -> FastAPI:
 
 
 app = create_app()
+ensure_initialized_once()
 
 
 def get_current_researcher(
