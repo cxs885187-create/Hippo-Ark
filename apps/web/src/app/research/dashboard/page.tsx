@@ -6,6 +6,7 @@ import {
   AudioLines,
   Bell,
   Brain,
+  ChevronDown,
   ChevronLeft,
   ChevronRight,
   Home,
@@ -171,6 +172,7 @@ export default function ResearchDashboardPage() {
   });
   const [customPrompt, setCustomPrompt] = useState("");
   const [selectedPromptId, setSelectedPromptId] = useState(qaLibrary[0].id);
+  const [expandedPromptId, setExpandedPromptId] = useState<string | null>(qaLibrary[0].id);
   const [message, setMessage] = useState<string | null>(null);
   const [drafts, setDrafts] = useState<Record<number, string>>({});
 
@@ -282,6 +284,11 @@ export default function ResearchDashboardPage() {
     });
     setMessage("话术已下发到老年端。");
     await feedResource.refresh();
+  }
+
+  function togglePromptCard(promptId: string) {
+    setSelectedPromptId(promptId);
+    setExpandedPromptId((current) => (current === promptId ? null : promptId));
   }
 
   async function saveTranscript(interactionId: number) {
@@ -673,59 +680,80 @@ export default function ResearchDashboardPage() {
               </article>
 
               <article id="dashboard-prompts" className="border-t border-white/10 pt-6">
-                <div className="rounded-[1.7rem] border border-amber-200/20 bg-[linear-gradient(180deg,rgba(253,249,240,0.98),rgba(243,236,220,0.96))] p-4 text-slate-900 shadow-[0_18px_40px_rgba(0,0,0,0.16)]">
+                <div className="rounded-[1.7rem] border border-white/10 bg-[linear-gradient(180deg,rgba(23,31,45,0.94),rgba(12,18,29,0.98))] p-4 text-slate-100 shadow-[inset_0_1px_0_rgba(255,255,255,0.06),0_18px_40px_rgba(0,0,0,0.3)]">
                   <div className="flex items-center justify-between gap-4">
                     <div>
-                      <p className="font-data text-[11px] tracking-[0.28em] text-slate-500">预设提问库</p>
-                      <h2 className="cjk-heading mt-3 text-xl font-semibold text-slate-950">按现场语境挑一句就能下发</h2>
+                      <p className="font-data text-[11px] tracking-[0.28em] text-slate-400">预设提问库</p>
+                      <h2 className="cjk-heading mt-3 text-xl font-semibold text-slate-100">按现场语境挑一句就能下发</h2>
                     </div>
-                    <Sparkles className="h-5 w-5 text-amber-700" />
+                    <Sparkles className="h-5 w-5 text-cyan-300" />
                   </div>
 
-                  <div className="mt-5 space-y-3">
+                  <div className="mt-5 space-y-2.5">
                     {qaLibrary.map((item) => {
-                      const active = item.id === selectedPrompt.id;
+                      const active = item.id === expandedPromptId;
+                      const selected = item.id === selectedPrompt.id;
                       return (
-                        <button
+                        <article
                           key={item.id}
-                          type="button"
-                          onClick={() => setSelectedPromptId(item.id)}
-                          className={`w-full rounded-[1.25rem] border px-4 py-4 text-left transition ${
+                          className={`rounded-[1.25rem] border transition ${
                             active
-                              ? "border-slate-900/12 bg-white text-slate-950 shadow-[0_14px_30px_rgba(15,23,42,0.08)]"
-                              : "border-white/70 bg-white/72 text-slate-900 hover:border-slate-900/12 hover:bg-white"
+                              ? "border-cyan-300/34 bg-slate-950/78 shadow-[0_18px_30px_rgba(0,0,0,0.22)]"
+                              : selected
+                                ? "border-slate-500/55 bg-slate-950/52"
+                                : "border-white/8 bg-black/16 hover:border-white/16 hover:bg-black/22"
                           }`}
                         >
-                          <p className="font-data text-[10px] tracking-[0.22em] text-slate-500">{item.title}</p>
-                          <p className="mt-2 text-sm leading-7 text-slate-950">{item.prompt}</p>
-                          <p className="mt-3 text-xs leading-6 text-slate-600">{item.intent}</p>
-                        </button>
+                          <button
+                            type="button"
+                            aria-expanded={active}
+                            onClick={() => togglePromptCard(item.id)}
+                            className="flex w-full items-center justify-between gap-4 px-4 py-4 text-left"
+                          >
+                            <div className="min-w-0">
+                              <p className="font-data text-[10px] tracking-[0.22em] text-slate-400">{item.title}</p>
+                              <p className="mt-2 max-h-14 overflow-hidden text-sm leading-7 text-slate-100/92">
+                                {item.prompt}
+                              </p>
+                            </div>
+                            <ChevronDown
+                              className={`h-4 w-4 shrink-0 text-slate-400 transition-transform ${active ? "rotate-180 text-cyan-300" : ""}`}
+                            />
+                          </button>
+
+                          {active && (
+                            <div className="border-t border-white/8 px-4 pb-4 pt-3">
+                              <p className="text-sm leading-7 text-slate-100">{item.prompt}</p>
+                              <p className="mt-3 text-xs leading-6 text-slate-400">{item.intent}</p>
+                            </div>
+                          )}
+                        </article>
                       );
                     })}
                   </div>
 
-                  <div className="mt-5 rounded-[1.3rem] border border-slate-900/8 bg-white/90 p-4">
-                    <p className="font-data text-[10px] tracking-[0.22em] text-slate-500">即将下发</p>
-                    <p className="mt-2 text-sm leading-7 text-slate-950">{selectedPrompt.prompt}</p>
-                    <p className="mt-2 text-xs leading-6 text-slate-600">{selectedPrompt.intent}</p>
+                  <div className="mt-5 rounded-[1.3rem] border border-white/10 bg-slate-950/60 p-4">
+                    <p className="font-data text-[10px] tracking-[0.22em] text-slate-400">即将下发</p>
+                    <p className="mt-2 text-sm leading-7 text-slate-100">{selectedPrompt.prompt}</p>
+                    <p className="mt-2 text-xs leading-6 text-slate-400">{selectedPrompt.intent}</p>
                   </div>
 
                   <button
                     onClick={() => sendPrompt(selectedPrompt.prompt)}
-                    className="mt-5 flex w-full items-center justify-center gap-2 rounded-full border border-slate-900/12 bg-slate-950 px-4 py-3 text-sm text-white transition hover:bg-slate-900 hover:shadow-[0_0_28px_rgba(15,23,42,0.26)]"
+                    className="mt-5 flex w-full items-center justify-center gap-2 rounded-full border border-cyan-300/28 bg-cyan-400/12 px-4 py-3 text-sm text-slate-100 transition hover:border-cyan-300/48 hover:bg-cyan-400/16 hover:shadow-[0_0_28px_rgba(75,198,255,0.2)]"
                   >
                     <Send className="h-4 w-4" />
                     下发预设提问
                   </button>
                 </div>
 
-                <div className="mt-5 rounded-[1.6rem] border border-white/10 bg-black/14 p-4">
+                <div className="mt-5 rounded-[1.6rem] border border-white/10 bg-slate-950/34 p-4">
                   <p className="font-data text-[11px] uppercase tracking-[0.28em] text-slate-400">自定义话术</p>
                   <textarea
                     value={customPrompt}
                     onChange={(event) => setCustomPrompt(event.target.value)}
                     placeholder="输入自定义追问、安抚或结束语"
-                    className="mt-4 min-h-32 w-full rounded-[1rem] border border-white/10 bg-white/4 px-4 py-3 text-sm leading-7 text-slate-100 outline-none transition focus:border-amber-300/45"
+                    className="mt-4 min-h-32 w-full rounded-[1rem] border border-white/10 bg-black/22 px-4 py-3 text-sm leading-7 text-slate-100 outline-none transition focus:border-cyan-300/45"
                   />
                   <button
                     onClick={() => {
@@ -734,7 +762,7 @@ export default function ResearchDashboardPage() {
                         setCustomPrompt("");
                       }
                     }}
-                    className="mt-4 flex w-full items-center justify-center gap-2 rounded-full border border-amber-300/25 bg-amber-300/10 px-4 py-3 text-sm transition hover:border-amber-300/50 hover:shadow-[0_0_28px_rgba(243,199,111,0.2)]"
+                    className="mt-4 flex w-full items-center justify-center gap-2 rounded-full border border-white/12 bg-white/6 px-4 py-3 text-sm text-slate-100 transition hover:border-cyan-300/40 hover:bg-cyan-400/10 hover:shadow-[0_0_28px_rgba(75,198,255,0.14)]"
                   >
                     <Send className="h-4 w-4" />
                     发送自定义话术
