@@ -171,6 +171,7 @@ export default function ResearchDashboardPage() {
     name: "",
   });
   const [customPrompt, setCustomPrompt] = useState("");
+  const [isPromptPanelOpen, setIsPromptPanelOpen] = useState(false);
   const [selectedPromptId, setSelectedPromptId] = useState(qaLibrary[0].id);
   const [expandedPromptId, setExpandedPromptId] = useState<string | null>(qaLibrary[0].id);
   const [message, setMessage] = useState<string | null>(null);
@@ -680,71 +681,95 @@ export default function ResearchDashboardPage() {
               </article>
 
               <article id="dashboard-prompts" className="border-t border-white/10 pt-6">
-                <div className="rounded-[1.7rem] border border-white/10 bg-[linear-gradient(180deg,rgba(23,31,45,0.94),rgba(12,18,29,0.98))] p-4 text-slate-100 shadow-[inset_0_1px_0_rgba(255,255,255,0.06),0_18px_40px_rgba(0,0,0,0.3)]">
-                  <div className="flex items-center justify-between gap-4">
-                    <div>
-                      <p className="font-data text-[11px] tracking-[0.28em] text-slate-400">预设提问库</p>
-                      <h2 className="cjk-heading mt-3 text-xl font-semibold text-slate-100">按现场语境挑一句就能下发</h2>
-                    </div>
-                    <Sparkles className="h-5 w-5 text-cyan-300" />
-                  </div>
-
-                  <div className="mt-5 space-y-2.5">
-                    {qaLibrary.map((item) => {
-                      const active = item.id === expandedPromptId;
-                      const selected = item.id === selectedPrompt.id;
-                      return (
-                        <article
-                          key={item.id}
-                          className={`rounded-[1.25rem] border transition ${
-                            active
-                              ? "border-cyan-300/34 bg-slate-950/78 shadow-[0_18px_30px_rgba(0,0,0,0.22)]"
-                              : selected
-                                ? "border-slate-500/55 bg-slate-950/52"
-                                : "border-white/8 bg-black/16 hover:border-white/16 hover:bg-black/22"
-                          }`}
-                        >
-                          <button
-                            type="button"
-                            aria-expanded={active}
-                            onClick={() => togglePromptCard(item.id)}
-                            className="flex w-full items-center justify-between gap-4 px-4 py-4 text-left"
-                          >
-                            <div className="min-w-0">
-                              <p className="font-data text-[10px] tracking-[0.22em] text-slate-400">{item.title}</p>
-                              <p className="mt-2 max-h-14 overflow-hidden text-sm leading-7 text-slate-100/92">
-                                {item.prompt}
-                              </p>
-                            </div>
-                            <ChevronDown
-                              className={`h-4 w-4 shrink-0 text-slate-400 transition-transform ${active ? "rotate-180 text-cyan-300" : ""}`}
-                            />
-                          </button>
-
-                          {active && (
-                            <div className="border-t border-white/8 px-4 pb-4 pt-3">
-                              <p className="text-sm leading-7 text-slate-100">{item.prompt}</p>
-                              <p className="mt-3 text-xs leading-6 text-slate-400">{item.intent}</p>
-                            </div>
-                          )}
-                        </article>
-                      );
-                    })}
-                  </div>
-
-                  <div className="mt-5 rounded-[1.3rem] border border-white/10 bg-slate-950/60 p-4">
-                    <p className="font-data text-[10px] tracking-[0.22em] text-slate-400">即将下发</p>
-                    <p className="mt-2 text-sm leading-7 text-slate-100">{selectedPrompt.prompt}</p>
-                    <p className="mt-2 text-xs leading-6 text-slate-400">{selectedPrompt.intent}</p>
-                  </div>
-
+                <div className="overflow-hidden rounded-[1.7rem] border border-white/10 bg-[linear-gradient(180deg,rgba(23,31,45,0.94),rgba(12,18,29,0.98))] text-slate-100 shadow-[inset_0_1px_0_rgba(255,255,255,0.06),0_18px_40px_rgba(0,0,0,0.3)]">
                   <button
-                    onClick={() => sendPrompt(selectedPrompt.prompt)}
-                    className="mt-5 flex w-full items-center justify-center gap-2 rounded-full border border-cyan-300/28 bg-cyan-400/12 px-4 py-3 text-sm text-slate-100 transition hover:border-cyan-300/48 hover:bg-cyan-400/16 hover:shadow-[0_0_28px_rgba(75,198,255,0.2)]"
+                    type="button"
+                    aria-expanded={isPromptPanelOpen}
+                    onClick={() => setIsPromptPanelOpen((current) => !current)}
+                    className="w-full px-4 py-4 text-left"
                   >
-                    <Send className="h-4 w-4" />
-                    下发预设提问
+                    <div className="flex items-start justify-between gap-4">
+                      <div>
+                        <p className="font-data text-[11px] tracking-[0.28em] text-slate-400">预设提问库</p>
+                        <h2 className="cjk-heading mt-3 text-xl font-semibold text-slate-100">按现场语境挑一句就能下发</h2>
+                        <p className="mt-3 text-xs leading-6 text-slate-400">
+                          当前选中：{selectedPrompt.title} · 共 {qaLibrary.length} 条提示
+                        </p>
+                      </div>
+
+                      <div className="flex items-center gap-3">
+                        <Sparkles className="mt-1 h-5 w-5 text-cyan-300" />
+                        <ChevronDown
+                          className={`mt-1 h-4 w-4 shrink-0 text-slate-400 transition-transform ${isPromptPanelOpen ? "rotate-180 text-cyan-300" : ""}`}
+                        />
+                      </div>
+                    </div>
+
+                    <div className="mt-5 rounded-[1.3rem] border border-white/10 bg-slate-950/60 p-4">
+                      <p className="font-data text-[10px] tracking-[0.22em] text-slate-400">
+                        {isPromptPanelOpen ? "即将下发" : "点击展开查看提问库"}
+                      </p>
+                      <p className="mt-2 text-sm leading-7 text-slate-100">{selectedPrompt.prompt}</p>
+                      {!isPromptPanelOpen && (
+                        <p className="mt-2 text-xs leading-6 text-slate-400">{selectedPrompt.intent}</p>
+                      )}
+                    </div>
                   </button>
+
+                  {isPromptPanelOpen && (
+                    <div className="border-t border-white/8 px-4 pb-4 pt-4">
+                      <div className="space-y-2.5">
+                        {qaLibrary.map((item) => {
+                          const active = item.id === expandedPromptId;
+                          const selected = item.id === selectedPrompt.id;
+                          return (
+                            <article
+                              key={item.id}
+                              className={`rounded-[1.25rem] border transition ${
+                                active
+                                  ? "border-cyan-300/34 bg-slate-950/78 shadow-[0_18px_30px_rgba(0,0,0,0.22)]"
+                                  : selected
+                                    ? "border-slate-500/55 bg-slate-950/52"
+                                    : "border-white/8 bg-black/16 hover:border-white/16 hover:bg-black/22"
+                              }`}
+                            >
+                              <button
+                                type="button"
+                                aria-expanded={active}
+                                onClick={() => togglePromptCard(item.id)}
+                                className="flex w-full items-center justify-between gap-4 px-4 py-4 text-left"
+                              >
+                                <div className="min-w-0">
+                                  <p className="font-data text-[10px] tracking-[0.22em] text-slate-400">{item.title}</p>
+                                  <p className="mt-2 max-h-14 overflow-hidden text-sm leading-7 text-slate-100/92">
+                                    {item.prompt}
+                                  </p>
+                                </div>
+                                <ChevronDown
+                                  className={`h-4 w-4 shrink-0 text-slate-400 transition-transform ${active ? "rotate-180 text-cyan-300" : ""}`}
+                                />
+                              </button>
+
+                              {active && (
+                                <div className="border-t border-white/8 px-4 pb-4 pt-3">
+                                  <p className="text-sm leading-7 text-slate-100">{item.prompt}</p>
+                                  <p className="mt-3 text-xs leading-6 text-slate-400">{item.intent}</p>
+                                </div>
+                              )}
+                            </article>
+                          );
+                        })}
+                      </div>
+
+                      <button
+                        onClick={() => sendPrompt(selectedPrompt.prompt)}
+                        className="mt-4 flex w-full items-center justify-center gap-2 rounded-full border border-cyan-300/28 bg-cyan-400/12 px-4 py-3 text-sm text-slate-100 transition hover:border-cyan-300/48 hover:bg-cyan-400/16 hover:shadow-[0_0_28px_rgba(75,198,255,0.2)]"
+                      >
+                        <Send className="h-4 w-4" />
+                        下发预设提问
+                      </button>
+                    </div>
+                  )}
                 </div>
 
                 <div className="mt-5 rounded-[1.6rem] border border-white/10 bg-slate-950/34 p-4">
