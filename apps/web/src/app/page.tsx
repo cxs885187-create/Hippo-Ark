@@ -34,14 +34,14 @@ export default function Home() {
                 <p className="mt-3 text-sm leading-7 text-black/58">{projectFullName}</p>
               </div>
 
-              <div className="relative z-10 flex max-w-[58rem] flex-col gap-3 md:pr-[18rem]">
+              <div className="relative z-10 flex max-w-[58rem] flex-col gap-2 text-left md:gap-3 md:pr-[18rem]">
                 <h1 className="cjk-display text-[3.8rem] font-black md:text-[6.9rem]">
                   {homeHero.titleLines[0]}
                 </h1>
-                <h1 className="cjk-display pl-0 text-[3.8rem] font-black md:pl-14 md:text-[6.9rem]">
+                <h1 className="cjk-display text-[3.8rem] font-black md:text-[6.9rem]">
                   {homeHero.titleLines[1]}
                 </h1>
-                <h1 className="cjk-display pl-0 text-[3.3rem] font-black md:pl-28 md:text-[5.8rem]">
+                <h1 className="cjk-display text-[3.3rem] font-black md:text-[5.8rem]">
                   {homeHero.titleLines[2]}
                 </h1>
               </div>
@@ -98,14 +98,14 @@ export default function Home() {
               双重交付
             </h2>
           </div>
-          <div className="col-span-12 grid grid-cols-12 gap-8 md:col-span-8">
+          <div className="col-span-12 grid grid-cols-12 items-start gap-8 md:col-span-8">
             {projectHighlights.map((item, index) => (
               <article
                 key={item.title}
-                className={`${index === 1 ? "md:col-span-7 md:-mt-6" : "md:col-span-5"} col-span-12 border-t border-black/10 pt-7`}
+                className={`${index === 1 ? "md:col-span-7" : "md:col-span-5"} col-span-12 border-t border-black/10 pt-7`}
               >
                 <p className="font-data text-xs tracking-[0.28em] text-[var(--burnt)]">{item.eyebrow}</p>
-                <h3 className="cjk-heading mt-5 text-[2rem] font-black md:text-[2.4rem]">
+                <h3 className="cjk-heading mt-5 max-w-[16em] text-[1.85rem] font-black leading-[1.16] md:text-[2.2rem] lg:text-[2.4rem]">
                   {item.title}
                 </h3>
                 <p className="mt-5 text-base leading-8 text-black/66">{item.body}</p>

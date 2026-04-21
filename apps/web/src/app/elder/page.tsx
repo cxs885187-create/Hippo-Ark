@@ -254,7 +254,7 @@ export default function ElderPage() {
           </div>
         </section>
 
-        <section className="col-span-12 md:col-span-6">
+        <section className="col-span-12 md:col-span-5 lg:col-span-6">
           <p className="font-data text-xs tracking-[0.28em] text-black/44">当前提问</p>
           <div className="cjk-display mt-8 max-w-4xl text-[2.3rem] font-black text-black/88 md:text-[3.85rem]">
             {latestPrompt?.transcript ?? "您想从哪一段回忆开始都可以，我会在这里陪您慢慢听。"}
@@ -325,9 +325,9 @@ export default function ElderPage() {
           </div>
         </section>
 
-        <section className="col-span-12 md:col-span-2 md:border-l md:border-neutral-300 md:px-8">
+        <section className="col-span-12 md:col-span-3 md:border-l md:border-neutral-300 md:px-5 lg:col-span-2 lg:px-8">
           <p className="font-data text-xs tracking-[0.28em] text-black/44">会话计时</p>
-          <div className="mt-8 overflow-hidden font-data text-[4.6rem] font-light leading-[0.98] tracking-[-0.05em] text-black md:text-[6.4rem]">
+          <div className="mt-8 whitespace-nowrap font-data text-[4.2rem] font-light leading-none tracking-[-0.07em] text-black md:text-[5.4rem] lg:text-[6.4rem]">
             {formatTimer(seconds)}
           </div>
           <p className="mt-5 text-sm leading-7 text-black/56">
@@ -335,7 +335,7 @@ export default function ElderPage() {
           </p>
         </section>
 
-        <aside className="col-span-12 md:col-span-4 md:border-l md:border-neutral-300 md:pl-10">
+        <aside className="col-span-12 md:col-span-4 md:border-l md:border-neutral-300 md:pl-8 lg:pl-10">
           <p className="font-data text-xs tracking-[0.28em] text-black/44">讲述深度</p>
 
           <div className="mt-8 grid gap-8 lg:grid-cols-[minmax(10rem,11rem)_minmax(0,1fr)] lg:items-start">
